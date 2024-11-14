@@ -80,12 +80,12 @@ WSGI_APPLICATION = 'GestionProGS.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'gestionprogs',
-        'USER': 'root',
-        'PASSWORD': '5374008',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'gestionprogs_postgresql',  # El nombre de tu base de datos en Render
+        'USER': 'gestionprogs_postgresql_user',  # El nombre de usuario de tu base de datos
+        'PASSWORD': 'XEFgDIUYrYEMHFKgYzEF18ID7G2yQ6jW',  # La contraseña de la base de datos
+        'HOST': 'dpg-csr8j53tq21c7393qg8g-a',  # El nombre del host interno proporcionado por Render
+        'PORT': '5432',  # El puerto para PostgreSQL (siempre 5432)
     }
 }
 
