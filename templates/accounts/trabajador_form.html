@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <!-- Main Content -->
+  <div class="container mt-5">
+    <div class="row">
+        <div class="col-12 col-md-12">
+            <div class="container m-12">  
+                <div id="estadoFormContainer" style="display: none;">
+                    <div class="container">
+                        <form id="trabajadorForm" action="" method="POST">
+                            {% csrf_token %}
+                            {% if form.errors %}
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        {% for field in form %}
+                                            {% for error in field.errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="row justify-content-center">
+                                <div class="col-md-8">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            {% if estadoFuncion == 'editar' %}
+                                                <h3 class="mb-0">Editar Trabajador</h3>
+                                            {% else %}
+                                                <h3 class="mb-0">Agregar Trabajador</h3>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Campo: Tipo de Documento -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.tipo_documento.id_for_label }}" class="form-label me-2">Tipo de Documento</label>
+                                                    {{ form.tipo_documento }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Documento Trabajador -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.documento_trabajador.id_for_label }}" class="form-label me-2">Documento Trabajador</label>
+                                                    {{ form.documento_trabajador }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Nombre -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.nombre.id_for_label }}" class="form-label me-2">Nombre</label>
+                                                    {{ form.nombre }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Apellido -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.apellido.id_for_label }}" class="form-label me-2">Apellido</label>
+                                                    {{ form.apellido }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Correo Electrónico -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.email.id_for_label }}" class="form-label me-2">Correo Electrónico</label>
+                                                    {{ form.email }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Teléfono -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.telefono.id_for_label }}" class="form-label me-2">Teléfono</label>
+                                                    {{ form.telefono }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Municipio -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.municipio.id_for_label }}" class="form-label me-2">Municipio</label>
+                                                    {{ form.municipio }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Dirección -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.direccion.id_for_label }}" class="form-label me-2">Dirección</label>
+                                                    {{ form.direccion }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Tipo de Usuario -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.tipo_usuario.id_for_label }}" class="form-label me-2">Tipo de Usuario</label>
+                                                    {{ form.tipo_usuario }}
+                                                </div>
+                                            </div>
+
+                                            <!-- Campo: Activo -->
+                                            <div class="form-group row">
+                                                <div class="col-md-11 d-flex align-items-center">
+                                                    <label for="{{ form.activo.id_for_label }}" class="form-label me-2">Activo</label>
+                                                    {{ form.activo }}
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group text-center">
+                                                <button type="submit" class="btn btn-success">
+                                                    {% if estadoFuncion == 'editar' %}
+                                                        Actualizar
+                                                    {% else %}
+                                                        Guardar
+                                                    {% endif %}
+                                                </button>
+                                                <a href="{% url 'crear_trabajador' %}" class="btn btn-secondary">Cancelar</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h2 class="mb-4">Lista de Trabajadores</h2>
+                        </div>
+                        <div class="col-md-2 text-end d-flex align-items-start">
+                            {% if estadoFuncion == 'editar' %}
+                                <a href="{% url 'crear_trabajador' %}" class="btn btn-secondary">Nuevo Trabajador</a>
+                            {% elif estadoFuncion == 'crear' %}
+                                <button id="toggleFormButton" class="btn btn-primary mb-3">Agregar Trabajador</button>
+                            {% endif %}
+                        </div> 
+                        <div class="col-md-12">
+                            <table class="table table-striped table-hover">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Doc</th>
+                                        <th>Numero</th>
+                                        <th>Nombre</th>
+                                        <th>Teléfono</th>
+                                        <th>Dirección</th>
+                                        <th>Tipo Usuario</th>
+                                        <th>Activo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for trabajador in trabajadores %}
+                                        <tr>
+                                            <td>{{ trabajador.tipo_documento }}</td>
+                                            <td>{{ trabajador.documento_trabajador }}</td>
+                                            <td>{{ trabajador.nombre }} {{ trabajador.apellido }}</td>
+                                            <td>{{ trabajador.telefono }}</td>
+                                            <td>{{ trabajador.direccion }}</td>
+                                            <td>{{ trabajador.tipo_usuario }}</td>
+                                            <td>{{ trabajador.activo|yesno:"Sí,No" }}</td>
+                                            <td>
+                                                <a href="{% url 'editar_trabajador' trabajador.id %}" class="btn btn-primary btn-sm">Editar</a>
+                                                <form action="{% url 'eliminar_trabajador' trabajador.id %}" method="post" style="display:inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este trabajador?');">
+                                                        Eliminar
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>  
+                        </div> 
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formContainer = document.getElementById('estadoFormContainer');
+        const toggleButton = document.getElementById('toggleFormButton');
+        const editButtons = document.querySelectorAll('.editButton');
+        const form = document.getElementById('trabajadorForm');
+    
+        // Mostrar el formulario si la URL contiene 'editar' o 'nuevo'
+        const url = window.location.pathname;
+        if (url.includes('/trabajador/editar/')) {
+            formContainer.style.display = 'block';
+        }
+        if (url.includes('/trabajador/crear/')) {
+            formContainer.style.display = 'none';
+        }
+    
+        // Mostrar u ocultar el formulario al hacer clic en el botón "Agregar Trabajador"
+        toggleButton.addEventListener('click', function() {
+            if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+                formContainer.style.display = 'block';
+            } else {
+                formContainer.style.display = 'none';
+            }
+        });
+    
+        // Mostrar el formulario al hacer clic en el botón "Editar"
+        editButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                formContainer.style.display = 'block';
+                const id = this.getAttribute('data-id');
+                window.location.href = `{% url 'editar_trabajador' 0 %}`.replace('0', id);
+            });
+        });
+    
+        // Función de validación antes de enviar el formulario
+        form.addEventListener('submit', function(event) {
+            const nombre = form.querySelector('[name="nombre"]');
+            const tipo_usuario = form.querySelector('[name="tipo_usuario"]');
+            let valid = true;
+            let errorMessage = '';
+    
+            // Validación del campo "nombre"
+            if (!nombre.value.trim()) {
+                valid = false;
+                errorMessage += 'El campo Nombre es obligatorio.\n';
+            }
+    
+            // Validación del campo "tipo_usuario"
+            if (!tipo_usuario.value.trim()) {
+                valid = false;
+                errorMessage += 'El campo Tipo de Usuario es obligatorio.\n';
+            }
+    
+            // Si alguna validación falla, mostrar un mensaje y evitar el envío del formulario
+            if (!valid) {
+                alert(errorMessage);
+                event.preventDefault();
+            }
+        });
+    });
+  </script>
+{% endblock %}

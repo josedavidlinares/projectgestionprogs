@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <!-- Main Content -->
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-12 col-md-12">
+        <div class="container m-12">  
+          <div id="estadoFormContainer" style="display: none;">
+            <div class="container">
+                <form id="categoriaForm" action="" method="POST">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <ul>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    {% if estadoFuncion == 'editar' %}
+                                        <h3 class="mb-0">Editar Categoria</h3>
+                                    {% else %}
+                                        <h3 class="mb-0">Agregar Categoria</h3>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group row">
+                                        <div class="col-md-11">
+                                            <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre</label>
+                                            {{ form.nombre }}  <!-- Renderiza el campo del formulario automáticamente -->
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-md-11">
+                                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                                            {{ form.descripcion }}  <!-- Renderiza el campo del formulario automáticamente -->
+                                        </div>
+                                    </div>
+                
+                                    <div class="form-group text-center">
+                                        <button type="submit" class="btn btn-success">
+                                            {% if estadoFuncion == 'editar' %}
+                                                Actualizar
+                                            {% else %}
+                                                Guardar
+                                            {% endif %}
+                                        </button>
+                                        <a href="{% url 'crear_categoria' %}" class="btn btn-secondary">Cancelar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+      
+        <div class="container mt-5">
+            <div class="row">
+              <div class="col-md-10">
+                <h2 class="mb-4">Lista de Categorías</h2>
+              </div>
+              <div class="col-md-2 text-end d-flex align-items-start">
+                {% if estadoFuncion == 'editar' %}
+                    <a href="{% url 'crear_categoria' %}" class="btn btn-secondary">Nueva Categoria</a>
+                {% elif estadoFuncion == 'crear' %}
+                    <button id="toggleFormButton" class="btn btn-primary mb-3">Agregar Categoria</button>
+                {% endif %}
+              </div> 
+              <div class="col-md-12">
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Identificación</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table table-hover">
+                        {% for categoria in categorias %}
+                            <tr>
+                                <td> {{ categoria.id }} </td>  <!-- Cambié id_tcont por id -->
+                                <td>{{ categoria.nombre }}</td>
+                                <td>{{ categoria.descripcion }}</td>
+                                <td>
+                                    {% if categoria.id %}  <!-- Cambié id_tcont por id -->
+                                        <a href="{% url 'editar_categoria' categoria.id %}" class="btn btn-primary btn-sm">Editar</a>  <!-- Cambié id_tcont por id -->
+                                    {% else %}
+                                        <span>No ID</span>
+                                    {% endif %}
+                                    {% if categoria.id %}  <!-- Cambié id_tcont por id -->
+                                        <form action="{% url 'eliminar_categoria' categoria.id %}" method="post" style="display:inline">  <!-- Cambié id_tcont por id -->
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar esta categoría?');">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span>No ID</span>
+                                    {% endif %}
+                                  
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>  
+            </div> 
+          </div>
+        </div> 
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formContainer = document.getElementById('estadoFormContainer');
+        const toggleButton = document.getElementById('toggleFormButton');
+        const editButtons = document.querySelectorAll('.editButton');
+        const form = document.getElementById('categoriaForm');
+    
+        // Mostrar el formulario si la URL contiene 'editar' o 'nuevo'
+        const url = window.location.pathname;
+        if (url.includes('/categoria/editar/')) {
+            formContainer.style.display = 'block';
+        }
+        if (url.includes('/categoria/nuevo/')) {
+            formContainer.style.display = 'none';
+        }
+    
+        // Mostrar u ocultar el formulario al hacer clic en el botón "Agregar Categoria"
+        toggleButton.addEventListener('click', function() {
+            if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+                formContainer.style.display = 'block';
+            } else {
+                formContainer.style.display = 'none';
+            }
+        });
+    
+        // Mostrar el formulario al hacer clic en el botón "Editar"
+        editButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                formContainer.style.display = 'block';
+                const id = this.getAttribute('data-id');
+                window.location.href = `{% url 'editar_categoria' 0 %}`.replace('0', id);
+            });
+        });
+    
+        // Función de validación antes de enviar el formulario
+        form.addEventListener('submit', function(event) {
+            const nombre = form.querySelector('[name="nombre"]');
+            const descripcion = form.querySelector('[name="descripcion"]');
+            let valid = true;
+            let errorMessage = '';
+    
+            // Validación del campo "nombre"
+            if (!nombre.value.trim()) {
+                valid = false;
+                errorMessage += 'El campo Nombre es obligatorio.\n';
+            }
+    
+            // Validación del campo "descripcion"
+            if (!descripcion.value.trim()) {
+                valid = false;
+                errorMessage += 'El campo Descripción es obligatorio.\n';
+            }
+    
+            // Si alguna validación falla, mostrar un mensaje y evitar el envío del formulario
+            if (!valid) {
+                alert(errorMessage);
+                event.preventDefault();
+            }
+        });
+    });
+  </script>
+{% endblock %}
