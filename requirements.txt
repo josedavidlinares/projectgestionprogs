@@ -10,6 +10,7 @@ django-filter==24.3
 django-select2==8.2.1
 django-webpack-loader==3.1.1
 docopt==0.6.2
+gunicorn==23.0.0
 idna==3.10
 iniconfig==2.0.0
 Js2Py==0.74
