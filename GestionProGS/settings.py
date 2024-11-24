@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-^44aag9mu6&13-0p1u=8n@069x&i(#sxvhv=@9e59uk)u@(t(g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['projectgestionprogs.onrender.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -80,15 +80,14 @@ WSGI_APPLICATION = 'GestionProGS.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gestionprogs_postgresql',  # El nombre de tu base de datos en Render
-        'USER': 'gestionprogs_postgresql_user',  # El nombre de usuario de tu base de datos
-        'PASSWORD': 'XEFgDIUYrYEMHFKgYzEF18ID7G2yQ6jW',  # La contraseña de la base de datos
-        'HOST': 'dpg-csr8j53tq21c7393qg8g-a',  # El nombre del host interno proporcionado por Render
-        'PORT': '5432',  # El puerto para PostgreSQL (siempre 5432)
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'gestionprogs',
+        'USER': 'root',
+        'PASSWORD': '5374008',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
-
 
 
 # Password validation
@@ -126,6 +125,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

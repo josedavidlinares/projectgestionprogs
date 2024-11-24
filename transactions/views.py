@@ -4,6 +4,9 @@ from .forms import CotizacionForm, DetallesCotizacionFormSet, DetallesCotizacion
 from .models import Cotizacion, Detalles_Cotizacion, Producto
 from django.http import JsonResponse, HttpResponse
 import traceback
+from django.contrib import messages
+from django.db.models import Sum
+from decimal import Decimal
 
 def crear_cotizacion(request):
     if request.method == 'POST':
@@ -94,3 +97,70 @@ def buscar_productos(request):
         print("Error en buscar_productos:", e)
         print(traceback.format_exc())  # Detalles del error
         return JsonResponse({'error': 'Ocurrió un error en el servidor.'}, status=500)
+    
+
+def listar_cotizaciones(request):
+    cotizaciones = Cotizacion.objects.all()
+    cotizaciones_con_totales = []
+
+    # Iterar sobre todas las cotizaciones
+    for cotizacion in cotizaciones:
+        # Obtener todos los detalles de la cotización
+        detalles = Detalles_Cotizacion.objects.filter(cotizacion=cotizacion)
+        
+        # Calcular el total de la cotización sumando los subtotales de los detalles y considerando el IVA
+        total_cotizacion = sum(Decimal(detalle.subtotal_prodC) for detalle in detalles)  # Subtotales de productos
+        total_iva = sum(Decimal(detalle.iva_producto) for detalle in detalles)  # Sumar el IVA de todos los productos
+        
+        # Aplicar el descuento a la cotización
+        descuento = Decimal(cotizacion.descuento or 0)  # Asegúrate de que el descuento es un Decimal
+        total_con_descuento = total_cotizacion - (total_cotizacion * (descuento / Decimal(100)))  # Convertir 100 a Decimal
+        
+        # Agregar los valores calculados (total, IVA y total con descuento) a la cotización
+        cotizaciones_con_totales.append({
+            'cotizacion': cotizacion,
+            'total_cotizacion': total_cotizacion,
+            'total_iva': total_iva,
+            'total_con_descuento': total_con_descuento
+        })
+    
+    # Pasamos las cotizaciones con sus totales al contexto
+    return render(request, 'transactions/listar_cotizaciones.html', {
+        'cotizaciones_con_totales': cotizaciones_con_totales
+    })
+
+def editar_cotizacion(request, cotizacion_id):
+    cotizacion = get_object_or_404(Cotizacion, pk=cotizacion_id)
+    detalles = DetallesCotizacion.objects.filter(cotizacion=cotizacion)
+
+    if request.method == 'POST':
+        cotizacion_form = CotizacionForm(request.POST, instance=cotizacion)
+        detalles_form = DetallesCotizacionForm(request.POST)
+
+        if cotizacion_form.is_valid() and detalles_form.is_valid():
+            cotizacion_form.save()
+
+            # Actualizar o agregar los detalles de la cotización
+            detalles_form.save(commit=False)
+            detalles_form.cotizacion = cotizacion
+            detalles_form.save()
+
+            messages.success(request, "Cotización actualizada exitosamente.")
+            return redirect('listar_cotizaciones')
+        else:
+            messages.error(request, "Hay errores en el formulario.")
+    else:
+        cotizacion_form = CotizacionForm(instance=cotizacion)
+        detalles_form = DetallesCotizacionForm()
+
+    return render(request, 'cotizacion/cotizacion.html', {
+        'cotizacion_form': cotizacion_form,
+        'detalles_form': detalles_form,
+        'cotizacion': cotizacion
+    })
+
+def eliminar_cotizacion(request, cotizacion_id):
+    cotizacion = get_object_or_404(Cotizacion, pk=cotizacion_id)
+    cotizacion.delete()
+    messages.success(request, "Cotización eliminada exitosamente.")
+    return redirect('listar_cotizaciones')

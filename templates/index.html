@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GestionProGS</title>
+  <link rel="icon" href="{% get_media_prefix %}index/GestionProGS.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+    font-family: 'Roboto', sans-serif;
+}
+.btn-primary {
+    transition: background-color 0.3s ease;
+}
+.btn-primary:hover {
+    background-color: #003374;
+}
+.form-container {
+    margin: 5% auto;
+    padding: 40px;
+    max-width: 500px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+.form-control {
+    border-radius: 0.25rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.form-control:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+}
+
+
+    .bg-image {
+    background-image: url("{% static 'path_to_image/logo.jpg' %}");
+    background-size: cover;
+    background-position: center;
+}
+
+    label, input {
+        font-size: 1.5rem;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+    .form-container {
+    background-color: #fff; /* Fondo blanco para el formulario */
+    padding: 20px; /* Relleno alrededor del formulario */
+    border-radius: 8px; /* Esquinas redondeadas */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+    margin-top: 50px; /* Espacio superior */
+}
+
+.cont-imag {
+    text-align: center; /* Centrar la imagen */
+    margin-bottom: 1px ; /* Espacio inferior entre la imagen y el formulario */
+}
+
+.img-logo {
+    max-width: 40%; /* La imagen no será más ancha que el contenedor */
+    height: auto; /* Mantener la proporción de la imagen */
+    display: block; /* Asegura que la imagen se comporte como un bloque */
+    margin: 0 auto; /* Centrar la imagen horizontalmente */
+}
+    
+    .form-container, .img-session {
+        position: relative; /* Añade posición relativa si no está ya */
+        z-index: 10; /* Asegura que esté por encima de otros elementos */
+    }
+
+
+    .custom-shape-divider-top-1718858104,
+    .custom-shape-divider-bottom-1718858279 {
+        z-index: 0; /* Envía estos SVGs detrás del formulario */
+    }
+
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .bg-image {
+    background-image: url('../imagenes/logo.jpg');
+}
+
+
+
+    .form-container {
+      background-color: rgba(0, 238, 255, 0.5);
+      margin-top: 5%;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.1);
+    }
+
+    .custom-shape-divider-top-1718858104 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.custom-shape-divider-top-1718858104 svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 150px;
+}
+
+.custom-shape-divider-top-1718858104 .shape-fill {
+    fill: #03c2fc;
+}
+
+.custom-shape-divider-bottom-1718858279 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1718858279 svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 391px;
+}
+
+.custom-shape-divider-bottom-1718858279 .shape-fill {
+    fill: #50E3C2;
+}
+
+.btn-primary {
+    background-color: #0056b3;
+    border-color: #004494;
+}
+.btn-primary:hover {
+    background-color: #004494;
+    border-color: #003374;
+}
+
+
+ </style>
+</head>
+<body>
+
+  <div class="custom-shape-divider-top-1718858104">
+    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
+        <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" class="shape-fill"></path>
+        <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" class="shape-fill"></path>
+    </svg>
+</div>
+  
+<div class="bg-image">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-6 offset-md-3">
+                <div class="form-container">
+                    <div class="bg-image"></div>
+                    <div class="cont-imag">
+                        <img src="{% get_media_prefix %}index/GestionProGS.png" alt="GestionProGS" class="img-logo">
+                    </div>
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputUser">Usuario</label> 
+                            <input type="text" class="form-control form-control-lg" id="exampleInputUser" placeholder="Ingresa tu usuario"> 
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Contraseña</label>
+                            <input type="password" class="form-control form-control-lg" id="exampleInputPassword1" placeholder="Contraseña">
+                        </div>
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-block btn-lg" role="button">Iniciar sesión</a>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="custom-shape-divider-bottom-1718858279">
+  <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <rect x="1200" height="3.6"></rect>
+      <rect height="3.6"></rect>
+      <path d="M0,0V3.6H580.08c11,0,19.92,5.09,19.92,13.2,0-8.14,8.88-13.2,19.92-13.2H1200V0Z" class="shape-fill"></path>
+  </svg>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
