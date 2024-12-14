@@ -629,6 +629,18 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+
+            <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+
+
+
+  
   <nav class="navbar navbar-expand-lg navbar-light bg-success navbar-custom">
     <div class="container-fluid">
       <div class="row w-100">
@@ -641,20 +653,28 @@
           </button>
         </div>
         <div class="col-md-4 d-flex justify-content-center align-items-center">
-          <!-- Reemplaza el texto por la imagen -->
-          <img src="{% static 'imagenes/Gestion.png' %}" alt="GestionProGS Logo" style="height: 40px;"> <!-- Ajusta el tamaño según sea necesario -->
-        </div>
+          <!-- Imagen como botón -->
+          <a href="{% url 'dashboard' %}" class="btn btn-primary" aria-label="Ir al dashboard" style="padding: 0; border: none; background: none;">
+              <img src="{% static 'imagenes/Gestion.png' %}" alt="GestionProGS Logo" class="img-fluid" style="height: 40px;"> <!-- Ajusta el tamaño según sea necesario -->
+          </a>
+      </div>
         <div class="col-md-4">
           <div class="collapse navbar-collapse menu-login" id="navbarNav">
             <ul class="navbar-nav ms-auto">
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle login-style" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-user"></i> Login
+                  <i class="fas fa-user"></i> {{ user.email }}
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                   <li><a class="dropdown-item" href="#">Usuario</a></li>
-                  <li><a class="dropdown-item" href="#">Cerrar Sesión</a></li>
-                </ul>
+                  <li>
+                      <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                          {% csrf_token %}
+                          <button type="submit" class="dropdown-item" style="border: none; background: none;">Cerrar Sesión</button>
+                      </form>
+                  </li>
+              </ul>
+              
               </li>
             </ul>
           </div>
@@ -693,11 +713,6 @@
                   <i class="fas fa-history"></i> Historial de Precios
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-warehouse"></i> Inventario
-                </a>
-              </li>
             </ul>
           </div>
         </li>
@@ -724,12 +739,12 @@
           <div class="collapse" id="dropdownMenuTransacciones">
             <ul class="nav flex-column ms-3">
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{% url 'listar_todas_las_proformas' %}">
                   <i class="fas fa-file-invoice-dollar"></i> ProForma
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'crear_cotizacion' %}">
+                <a class="nav-link" href="{% url 'listar_todas_las_cotizaciones' %}">
                   <i class="fas fa-receipt"></i> Cotización
                 </a>
               </li>
@@ -773,21 +788,21 @@
                   <i class="fas fa-tags"></i> Categoría
                 </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-user-cog"></i> Tipo de Usuario
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-credit-card"></i> Medios de Pago
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <i class="fas fa-money-check-alt"></i> Forma de Pago
-                </a>
-              </li>
+               <!-- <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-user-cog"></i> Tipo de Usuario
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-credit-card"></i> Medios de Pago
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-money-check-alt"></i> Forma de Pago
+                  </a>
+                </li>
             </ul>
           </div>
         </li>
@@ -798,68 +813,12 @@
 
   <!-- Main Content -->
   <div class="container mt-5">
-    {% block content %}{% endblock %}
+    {% block content %}
+    
+    {% endblock %}
   </div>
   <div class="fixed-box">
-<div class="tooltip-container">
-  <div class="button-content">
-    <svg
-  class="share-icon"
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 24 24"
-  width="24"
-  height="24"
->
-  <path
-    d="M12 5v14m-7-7h14"
-    stroke="white"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  />
-</svg>
-  </div>
-  <div class="tooltip-content">
-    <div class="social-icons">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-        >
-          <path
-            d="M12 2a5 5 0 110 10 5 5 0 010-10zm0 14c-6 0-10 3-10 5v1h20v-1c0-2-4-5-10-5z"
-          />
-        </svg>
-      </a>
-      <a href="#" class="social-icon facebook">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="24"
-          height="24"
-        >
-          <path
-            d="M19 2H5c-1.1 0-2 .9-2 2v16l4-4h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 10H7v-2h12v2zm0-4H7V6h12v2z"
-          />
-        </svg>
-      </a>
-      <a href="#" class="social-icon linkedin">
-        <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        width="24"
-        height="24"
-      >
-        <path
-          d="M21 16V8c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1h16c.55 0 1-.45 1-1zm-11 2H4V8h16v8h-7v-2H10v2zm4-12H8V4h6v2zm-1 0V4h4V2h-8v2h4v2h-4v2h4V8h-2v2h4V8h-4V6h2V4h-4v2z"
-        />
-      </svg>
 
-      </a>
-    </div>
-  </div>
-</div>
 
   </div>
   

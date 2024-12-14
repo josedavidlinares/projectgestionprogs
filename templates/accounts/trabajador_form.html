@@ -1,6 +1,304 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestionProGS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'imagenes/GestionProGS.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
 
-{% block content %}
+    /* General Styles */
+    .navbar-custom {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+        border-radius: 15px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        border-bottom: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-control {
+        border-radius: 0.375rem;
+    }
+    .table {
+        margin-top: 2rem;
+    }
+    @media (max-width: 768px) {
+        .navbar-custom {
+            padding: 0.5rem;
+        }
+    }
+    #estadoFormContainer {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #ddd;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: auto;
+        padding-top: 20px;
+    }
+    /* Estilo para el botón de editar */
+    .btn-edit {
+        background-color: #007bff; /* Azul de Bootstrap */
+        border-color: #007bff;
+        color: #fff; /* Texto blanco */
+        padding: 8px 16px; /* Tamaño consistente en píxeles */
+        border-radius: 4px; /* Bordes redondeados */
+        font-size: 14px; /* Tamaño de fuente */
+        line-height: 1.5;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-edit:hover {
+        background-color: #0056b3; /* Azul oscuro en hover */
+        border-color: #004085;
+    }
+
+    /* Estilo para el botón de eliminar */
+    .btn-delete {
+        background-color: #fff; /* Fondo blanco */
+        border-color: #dc3545; /* Rojo de Bootstrap */
+        color: #dc3545; /* Texto rojo */
+        padding: 8px 16px; /* Tamaño consistente en píxeles */
+        border-radius: 4px; /* Bordes redondeados */
+        font-size: 14px; /* Tamaño de fuente */
+        line-height: 1.5;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-delete:hover {
+        background-color: #f8d7da; /* Color de fondo claro en hover */
+        border-color: #bd2130;
+    }
+    /* From Uiverse.io by Mohammad-Rahme-576 */ 
+    .fixed-box {
+      position: fixed; /* Fija la caja en la ventana del navegador */
+      bottom: 0; /* Posición en la parte inferior */
+      right: 0; /* Posición en la parte derecha */
+      z-index: 9999; /* Asegura que esté por encima de otros elementos */
+      width: 200px; /* Ancho de la caja */
+      height: 100px; /* Altura de la caja */
+      background-color: #; /* Color de fondo de la caja */
+      color: white; /* Color del texto */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para darle un efecto flotante */
+      border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior */
+      padding: 0px; /* Espaciado interno */
+    }
+    
+
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-success navbar-custom">
+      <div class="container-fluid">
+        <div class="row w-100">
+          <div class="col-md-4 d-flex align-items-center">
+            <button class="btn me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+              <i class="fa-solid fa-bars"></i> Menú
+            </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </div>
+          <div class="col-md-4 d-flex justify-content-center align-items-center">
+            <!-- Imagen como botón -->
+            <a href="{% url 'dashboard' %}" class="btn btn-primary" aria-label="Ir al dashboard" style="padding: 0; border: none; background: none;">
+                <img src="{% static 'imagenes/Gestion.png' %}" alt="GestionProGS Logo" class="img-fluid" style="height: 40px;"> <!-- Ajusta el tamaño según sea necesario -->
+            </a>
+        </div>
+        
+          <div class="col-md-4">
+            <div class="collapse navbar-collapse menu-login" id="navbarNav">
+              <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle login-style" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user"></i> {{ user.email }}
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="#">Usuario</a></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item" style="border: none; background: none;">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                </ul>                
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menú</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}">
+              <i class="fas fa-home"></i> Inicio
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#dropdownMenuProductos" aria-expanded="false" aria-controls="dropdownMenuProductos">
+              <i class="fas fa-box"></i> Productos
+              <i class="fas fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="collapse" id="dropdownMenuProductos">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_producto' %}">
+                    <i class="fas fa-box-open"></i> Gestión de Productos
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'historial_precio' %}">
+                    <i class="fas fa-history"></i> Historial de Precios
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'crear_cliente' %}">
+              <i class="fas fa-user"></i> Clientes
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'crear_proveedor' %}">
+              <i class="fas fa-truck"></i> Proveedores
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'crear_tipo_usuario' %}">
+              <i class="fas fa-user"></i> Usuarios
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#dropdownMenuTransacciones" aria-expanded="false" aria-controls="dropdownMenuTransacciones">
+              <i class="fas fa-exchange-alt"></i> Transacciones
+              <i class="fas fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="collapse" id="dropdownMenuTransacciones">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'listar_todas_las_proformas' %}">
+                    <i class="fas fa-file-invoice-dollar"></i> ProForma
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'listar_todas_las_cotizaciones' %}">
+                    <i class="fas fa-receipt"></i> Cotización
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#dropdownMenuConfiguracion" aria-expanded="false" aria-controls="dropdownMenuConfiguracion">
+              <i class="fas fa-cogs"></i> Configuración
+              <i class="fas fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="collapse" id="dropdownMenuConfiguracion">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_t_contribuyente' %}">
+                    <i class="fas fa-user-tie"></i> Contribuyentes
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_t_documento' %}">
+                    <i class="fas fa-file-alt"></i> Documentos
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_pais' %}">
+                    <i class="fas fa-globe"></i> País
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_estado_region' %}">
+                    <i class="fas fa-map-marker-alt"></i> Departamento
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_municipio' %}">
+                    <i class="fas fa-city"></i> Municipio
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-tags"></i> Categoría
+                  </a>
+                </li>
+               <!-- <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-user-cog"></i> Tipo de Usuario
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-credit-card"></i> Medios de Pago
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-money-check-alt"></i> Forma de Pago
+                  </a>
+                </li>-->
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+
+    {% if user.is_authenticated %} 
+        <p>Bienvenido, {{ user.email }}!</p> <!-- Contenido para usuarios autenticados --> 
+    {% else %} 
+        <p>No has iniciado sesión. <a href="{% url 'login' %}">Iniciar sesión</a></p> {% endif %}
+
 
   <!-- Main Content -->
   <div class="container mt-5">
@@ -251,4 +549,19 @@
         });
     });
   </script>
-{% endblock %}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurar la fecha y hora actual
+        const dateElement = document.getElementById('current-date');
+        const timeElement = document.getElementById('current-time');
+        const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        const today = new Date();
+        dateElement.innerText = today.toLocaleDateString('es-ES', optionsDate);
+        timeElement.innerText = today.toLocaleTimeString('es-ES', optionsTime);
+    });
+</script>
+
+</body>
+</html>

@@ -3,8 +3,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse, HttpResponse
 from .models import T_Contribuyente, T_Documento, Pais, Estado_Region, Municipio, Cliente, Proveedor, Trabajador, Tipo_Usuario
 from .forms import T_ContribuyenteForm, T_DocumentoForm, PaisForm, Estado_RegionForm, MunicipioForm, ClienteForm, ProveedorForm, TrabajadorForm, Tipo_UsuarioForm
+from django.contrib.auth.decorators import login_required
+
 
 # Vista para crear un T_Contribuyente
+@login_required
 def crear_t_contribuyente(request):
     if request.method == 'POST':
         form = T_ContribuyenteForm(request.POST)
@@ -31,6 +34,7 @@ def crear_t_contribuyente(request):
 
 
 # Vista para editar un T_Contribuyente
+@login_required
 def editar_t_contribuyente(request, id_tcont):
     t_contribuyente = get_object_or_404(T_Contribuyente, id=id_tcont)  # Asegúrate de que 'id' esté siendo usado aquí
     if request.method == 'POST':
@@ -49,6 +53,7 @@ def editar_t_contribuyente(request, id_tcont):
 
 
 # Vista para eliminar un T_Contribuyente
+@login_required
 def eliminar_t_contribuyente(request, id_tcont):
     t_contribuyente = get_object_or_404(T_Contribuyente, id=id_tcont)  # Asegúrate de que 'id' esté siendo usado aquí
     if request.method == 'POST':
@@ -64,6 +69,7 @@ def eliminar_t_contribuyente(request, id_tcont):
 
 
 # Vista para crear un T_Documento
+@login_required
 def crear_t_documento(request):
     if request.method == 'POST':
         form = T_DocumentoForm(request.POST)
@@ -90,6 +96,7 @@ def crear_t_documento(request):
     return render(request, 'accounts/tdocumento_form.html', context)
 
 # Vista para editar un T_Documento
+@login_required
 def editar_t_documento(request, id_doc):
     t_documento = get_object_or_404(T_Documento, id=id_doc)
     if request.method == 'POST':
@@ -107,6 +114,7 @@ def editar_t_documento(request, id_doc):
     return render(request, 'accounts/tdocumento_form.html', context)
 
 # Vista para eliminar un T_Documento
+@login_required
 def eliminar_t_documento(request, id_doc):
     t_documento = get_object_or_404(T_Documento, id=id_doc)
     if request.method == 'POST':
@@ -121,6 +129,7 @@ def eliminar_t_documento(request, id_doc):
 
 
 # Vista para crear un Pais
+@login_required
 def crear_pais(request):
     if request.method == 'POST':
         form = PaisForm(request.POST)
@@ -147,6 +156,7 @@ def crear_pais(request):
     return render(request, 'accounts/pais_form.html', context)
 
 # Vista para editar un Pais
+@login_required
 def editar_pais(request, id_pais):
     pais = get_object_or_404(Pais, id=id_pais)
     if request.method == 'POST':
@@ -164,6 +174,7 @@ def editar_pais(request, id_pais):
     return render(request, 'accounts/pais_form.html', context)
 
 # Vista para eliminar un Pais
+@login_required
 def eliminar_pais(request, id_pais):
     pais = get_object_or_404(Pais, id=id_pais)
     if request.method == 'POST':
@@ -178,6 +189,7 @@ def eliminar_pais(request, id_pais):
 
 
 # Vista para crear un Estado_Region
+@login_required
 def crear_estado_region(request):
     if request.method == 'POST':
         form = Estado_RegionForm(request.POST)
@@ -204,6 +216,7 @@ def crear_estado_region(request):
     return render(request, 'accounts/estado_region_form.html', context)
 
 # Vista para editar un Estado_Region
+@login_required
 def editar_estado_region(request, id_estado):
     estado_region = get_object_or_404(Estado_Region, id=id_estado)
     if request.method == 'POST':
@@ -221,6 +234,7 @@ def editar_estado_region(request, id_estado):
     return render(request, 'accounts/estado_region_form.html', context)
 
 # Vista para eliminar un Estado_Region
+@login_required
 def eliminar_estado_region(request, id_estado):
     estado_region = get_object_or_404(Estado_Region, id=id_estado)
     if request.method == 'POST':
@@ -233,12 +247,14 @@ def eliminar_estado_region(request, id_estado):
     }
     return render(request, 'accounts/estado_region_confirm_delete.html', context)
 
+@login_required
 def obtener_paises(request):
     paises = Pais.objects.all().values('id', 'nombre')
     return JsonResponse(list(paises), safe=False)
 
 
 # Vista para crear un Municipio
+@login_required
 def crear_municipio(request):
     if request.method == 'POST':
         form = MunicipioForm(request.POST)
@@ -265,6 +281,7 @@ def crear_municipio(request):
     return render(request, 'accounts/municipio_form.html', context)
 
 # Vista para editar un Municipio
+@login_required
 def editar_municipio(request, id_municipio):
     municipio = get_object_or_404(Municipio, id=id_municipio)
     if request.method == 'POST':
@@ -282,6 +299,7 @@ def editar_municipio(request, id_municipio):
     return render(request, 'accounts/municipio_form.html', context)
 
 # Vista para eliminar un Municipio
+@login_required
 def eliminar_municipio(request, id_municipio):
     municipio = get_object_or_404(Municipio, id=id_municipio)
     if request.method == 'POST':
@@ -294,6 +312,7 @@ def eliminar_municipio(request, id_municipio):
     }
     return render(request, 'accounts/municipio_confirm_delete.html', context)
 
+@login_required
 def obtener_departamentos(request):
     # Obtener todos los departamentos de la base de datos
     departamentos = Estado_Region.objects.all()
@@ -309,6 +328,7 @@ def obtener_departamentos(request):
 
 
 # Vista para Crear un Cliente
+@login_required
 def crear_cliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
@@ -334,6 +354,7 @@ def crear_cliente(request):
 
 
 # Vista para Editar un Cliente
+@login_required
 def editar_cliente(request, id_cliente):
     try:
         cliente_instance = Cliente.objects.get(id=id_cliente)
@@ -369,6 +390,7 @@ def editar_cliente(request, id_cliente):
 
 
 # Vista para Eliminar un Cliente
+@login_required
 def eliminar_cliente(request, id_cliente):
     cliente = get_object_or_404(Cliente, id=id_cliente)
     if request.method == 'POST':
@@ -382,6 +404,7 @@ def eliminar_cliente(request, id_cliente):
     return render(request, 'accounts/cliente_form.html', context)
 
 # Vista para Crear un Proveedor
+@login_required
 def crear_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -406,6 +429,7 @@ def crear_proveedor(request):
     return render(request, 'accounts/proveedor_form.html', context)
 
 # Vista para Editar un Proveedor
+@login_required
 def editar_proveedor(request, id_proveedor):
     try:
         proveedor_instance = get_object_or_404(Proveedor, id=id_proveedor)  # Obtener el proveedor por id
@@ -438,6 +462,7 @@ def editar_proveedor(request, id_proveedor):
         raise Http404("Proveedor no encontrado")
     
 # Vista para Eliminar un Proveedor
+@login_required
 def eliminar_proveedor(request, id_proveedor):
     proveedor = get_object_or_404(Proveedor, id=id_proveedor)  # Obtener el proveedor por id
 
@@ -453,6 +478,7 @@ def eliminar_proveedor(request, id_proveedor):
 
 
 #Vista para crear un Trabajador
+@login_required
 def crear_trabajador(request):
     if request.method == 'POST':
         form = TrabajadorForm(request.POST)
@@ -478,6 +504,7 @@ def crear_trabajador(request):
 
 
 #Vista para editar un Trabajador
+@login_required
 def editar_trabajador(request, id_trabajador):
     try:
         trabajador_instance = Trabajador.objects.get(id=id_trabajador)
@@ -510,6 +537,7 @@ def editar_trabajador(request, id_trabajador):
     
 
 #Vista para eliminar un Trabajador
+@login_required
 def eliminar_trabajador(request, id_trabajador):
     trabajador = get_object_or_404(Trabajador, id=id_trabajador)  # Obtener el trabajador por id
 
@@ -523,7 +551,7 @@ def eliminar_trabajador(request, id_trabajador):
     }
     return render(request, 'accounts/trabajador_form.html', context)
 
-
+@login_required
 def crear_tipo_usuario(request):
     if request.method == 'POST':
         form = Tipo_UsuarioForm(request.POST)
@@ -546,7 +574,7 @@ def crear_tipo_usuario(request):
     }
     return render(request, 'accounts/tipo_usuario_form.html', context)
 
-
+@login_required
 def editar_tipo_usuario(request, id):
     tipo_usuario = get_object_or_404(Tipo_Usuario, id=id)  # Usamos 'id' para obtener el objeto
     if request.method == 'POST':
@@ -563,7 +591,7 @@ def editar_tipo_usuario(request, id):
     }
     return render(request, 'accounts/tipo_usuario_form.html', context)
 
-
+@login_required
 def eliminar_tipo_usuario(request, id):
     tipo_usuario = get_object_or_404(Tipo_Usuario, id=id)  # Usamos 'id' para obtener el objeto
     if request.method == 'POST':

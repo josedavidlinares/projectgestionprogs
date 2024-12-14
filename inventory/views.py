@@ -3,8 +3,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse, HttpResponse
 from .forms import CategoriaForm, MedioPagoForm, FormaPagoForm, ProductoForm
 from .models import Categoria, Medio_Pago, Forma_Pago, Producto, Historico_Precios
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
 #Vista para crear Categorias
+@login_required
 def crear_categoria(request):
     if request.method == 'POST':
         form = CategoriaForm(request.POST)
@@ -30,6 +33,7 @@ def crear_categoria(request):
 
 
 #Vista para editar Categorias
+@login_required
 def editar_categoria(request, id_categoria):
     categoria = get_object_or_404(Categoria, id=id_categoria)  # Obtener la categoria por id
     if request.method == 'POST':
@@ -47,6 +51,7 @@ def editar_categoria(request, id_categoria):
     return render(request, 'inventory/categoria_form.html', context)
 
 #Vista para eliminar Categorias
+@login_required
 def eliminar_categoria(request, id_categoria):
     categoria = get_object_or_404(Categoria, id=id_categoria)  # Obtener la categoria por id
     if request.method == 'POST':
@@ -60,6 +65,7 @@ def eliminar_categoria(request, id_categoria):
     return render(request, 'inventory/categoria_confirm_delete.html', context)
 
 #Vista para crear Medio de Pago
+@login_required
 def crear_medio_pago(request):
     if request.method == 'POST':
         form = MedioPagoForm(request.POST)
@@ -84,6 +90,7 @@ def crear_medio_pago(request):
     return render(request, 'inventory/medio_pago_form.html', context)
 
 #Vista para editar Medio de Pago
+@login_required
 def editar_medio_pago(request, id_medio_pago):
     medio_pago = get_object_or_404(Medio_Pago, id=id_medio_pago)  # Obtener el medio de pago por id
     if request.method == 'POST':
@@ -101,6 +108,7 @@ def editar_medio_pago(request, id_medio_pago):
     return render(request, 'inventory/medio_pago_form.html', context)
 
 #Vista para eliminar Medio de Pago
+@login_required
 def eliminar_medio_pago(request, id_medio_pago):
     medio_pago = get_object_or_404(Medio_Pago, id=id_medio_pago)  # Obtener el medio de pago por id
     if request.method == 'POST':
@@ -113,9 +121,8 @@ def eliminar_medio_pago(request, id_medio_pago):
     }
     return render(request, 'inventory/medio_pago_confirm_delete.html', context)
 
-
-
 #Vista para crear Forma de Pago
+@login_required
 def crear_forma_pago(request):
     if request.method == 'POST':
         form = FormaPagoForm(request.POST)
@@ -140,6 +147,7 @@ def crear_forma_pago(request):
     return render(request, 'inventory/forma_pago_form.html', context)
 
 #Vista para editar Forma de Pago
+@login_required
 def editar_forma_pago(request, id_forma_pago):
     forma_pago = get_object_or_404(Forma_Pago, id=id_forma_pago)  # Obtener la forma de pago por id
     if request.method == 'POST':
@@ -156,8 +164,8 @@ def editar_forma_pago(request, id_forma_pago):
     }
     return render(request, 'inventory/forma_pago_form.html', context)
 
-
 #Vista para eliminar Forma de Pago
+@login_required
 def eliminar_forma_pago(request, id_forma_pago):
     forma_pago = get_object_or_404(Forma_Pago, id=id_forma_pago)  # Obtener la forma de pago por id
     if request.method == 'POST':
@@ -170,61 +178,66 @@ def eliminar_forma_pago(request, id_forma_pago):
     }
     return render(request, 'inventory/forma_pago_confirm_delete.html', context)
 
-#Vista para crear Productos
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
+from .models import Producto
+from .forms import ProductoForm
+
+@login_required
 def crear_producto(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST)
         if form.is_valid():
-            # Guardar el nuevo objeto Producto
             producto = form.save()
-            # Redirigir a la vista de creación de productos (o a una lista de productos)
-            return redirect('crear_producto')  # Cambia esta URL por la que prefieras
+            return redirect('crear_producto')
         else:
-            print(form.errors)  # Imprimir los errores si el formulario no es válido
+            print(form.errors)
     else:
         form = ProductoForm()
 
-    productos = Producto.objects.all()  # Obtener todos los productos
-    estadoFuncion = 'crear'  # Estado para indicar que estamos en la vista de creación
+    productos = Producto.objects.all().order_by('nombre')  # Ordenar los productos por nombre
+    paginator = Paginator(productos, 10)  # Mostrar 10 productos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     context = {
         'form': form,
-        'productos': productos,
-        'estadoFuncion': estadoFuncion,
+        'page_obj': page_obj,
+        'estadoFuncion': 'crear',
     }
     return render(request, 'inventory/producto_form.html', context)
 
-#Vista para editar Productos
+@login_required
 def editar_producto(request, id_producto):
     try:
-        # Obtener la instancia del producto
         producto_instance = Producto.objects.get(id=id_producto)
         
-        # Manejar el formulario cuando el método es POST (actualización)
         if request.method == 'POST':
             form = ProductoForm(request.POST, instance=producto_instance)
             if form.is_valid():
-                form.save()  # Guardar los cambios en el producto
-                return redirect('crear_producto')  # Redirigir a la lista de productos después de la actualización
+                form.save()
+                return redirect('crear_producto')
         else:
-            form = ProductoForm(instance=producto_instance)  # Prellenar el formulario con la instancia del producto
+            form = ProductoForm(instance=producto_instance)
 
-        # Obtener información adicional para el contexto, si es necesario
-        productos = Producto.objects.all()
-        categorias = Categoria.objects.all()  # Asumí que el modelo Producto tiene una relación con Categoría
+        productos = Producto.objects.all().order_by('nombre')
+        paginator = Paginator(productos, 10)  # Mostrar 10 productos por página
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
         context = {
-            'form': form,  # Pasa el formulario al contexto
-            'productos': productos,  # Lista de productos
-            'categorias': categorias,  # Lista de categorías para el campo 'categoria'
-            'estadoFuncion': 'editar',  # Para saber si es una acción de edición
+            'form': form,
+            'page_obj': page_obj,
+            'estadoFuncion': 'editar',
         }
-
         return render(request, 'inventory/producto_form.html', context)
-
+    
     except Producto.DoesNotExist:
         raise Http404("Producto no encontrado")
 
+
 #Vista para eliminar Productos
+@login_required
 def eliminar_producto(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)  # Obtener el producto por id
     if request.method == 'POST':
@@ -238,6 +251,7 @@ def eliminar_producto(request, id_producto):
     return render(request, 'inventory/producto_confirm_delete.html', context)
 
 #Historial de Precios
+@login_required
 def historial_precio(request):
     # Obtener todos los registros del historial de precios
     historial = Historico_Precios.objects.all().order_by('-fecha_cambio')

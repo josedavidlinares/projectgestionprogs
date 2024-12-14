@@ -1,262 +1,703 @@
-{% extends 'base.html' %}
-{% block content %}
+{% load humanize %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestionProGS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'imagenes/GestionProGS.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
 
-<h2>Crear Cotización</h2>
-<form method="post">
-    {% csrf_token %}
-
-    <div class="row">
-        <!-- Campo: Cliente -->
-        <div class="form-group col-md-4">
-            <label for="{{ form.cliente.id_for_label }}" class="form-label me-2">Cliente</label>
-            {{ form.cliente }}
-        </div>
-
-        <!-- Campo: Trabajador -->
-        <div class="form-group col-md-4">
-            <label for="{{ form.trabajador.id_for_label }}" class="form-label me-2">Trabajador</label>
-            {{ form.trabajador }}
-        </div>
-
-        <!-- Campo: Fecha de emisión -->
-        <div class="form-group col-md-4">
-            <label for="{{ form.fecha_emision.id_for_label }}" class="form-label me-2">Fecha de emisión</label>
-            {{ form.fecha_emision }}
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Campo: Fecha de vencimiento -->
-        <div class="form-group col-md-3">
-            <label for="{{ form.fecha_vencimiento.id_for_label }}" class="form-label me-2">Fecha de vencimiento</label>
-            {{ form.fecha_vencimiento }}
-        </div>
-
-        <!-- Campo: Descuento -->
-        <div class="form-group col-md-3">
-            <label for="{{ form.descuento.id_for_label }}" class="form-label me-2">Descuento</label>
-            {{ form.descuento }}
-        </div>
-
-        <!-- Campo: Total IVA -->
-        <div class="form-group col-md-3">
-            <label for="{{ form.total_iva.id_for_label }}" class="form-label me-2">Total IVA</label>
-            {{ form.total_iva }}
-        </div>
-
-        <!-- Campo: Estado -->
-        <div class="form-group col-md-3">
-            <label for="{{ form.estado.id_for_label }}" class="form-label me-2">Estado</label>
-            {{ form.estado }}
-        </div>
-    </div>
-
-    
-
-    <!-- Sección de Selección de Productos -->
-    <div class="row mb-3">
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Guardar Cotización</button>
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-           
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="button" class="btn btn-info" onclick="abrirModalProductos()">Seleccionar Producto</button>
-        </div>
-    </div>
-
-    <!-- Tabla para los Detalles de la Cotización -->
-    <div class="row mb-3 border border-1 border-gray rounded">
-        <div class="col-12">
-            <table class="table table-striped tabla-productos">
-                <thead>
-                    <tr>
-                        <th class="col-1">Cant</th>
-                        <th class="col-2">Código</th>
-                        <th class="col-3">Producto</th>
-                        <th class="col-2">Precio</th>
-                        <th class="col-1">IVA</th>
-                        <th class="col-2">Subtotal</th>
-                        <th class="col-1">Total IVA</th> <!-- Nueva columna para el Total IVA -->
-                        <th class="col-1">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="productos-list">
-                    <!--Aqui van los productos seleccionados en el modal-->
-                </tbody>
-            </table>
-        </div>
-    </div>
-</form>
-
-<!-- Modal de Selección de Producto -->
-<div class="modal fade" id="modalProductos" tabindex="-1" role="dialog" aria-labelledby="modalProductosLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalProductosLabel">Seleccionar Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="searchProductoModal" class="form-control" placeholder="Buscar por nombre..." />
-                <table class="table table-striped" id="productos-list-modal">
-                    <thead>
-                        <tr>
-                            <th>Cod</th>
-                            <th>Producto</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Los productos serán llenados con AJAX -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    // Función para abrir el modal de productos
-    function abrirModalProductos() {
-        $('#modalProductos').modal('show');
+    /* General Styles */
+    .navbar-custom {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+        border-radius: 15px;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        border-bottom: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-control {
+        border-radius: 0.375rem;
+    }
+    .table {
+        margin-top: 2rem;
+    }
+    @media (max-width: 768px) {
+        .navbar-custom {
+            padding: 0.5rem;
+        }
+    }
+    #estadoFormContainer {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #ddd;
+        z-index: 1000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: auto;
+        padding-top: 20px;
+    }
+    /* Estilo para el botón de editar */
+    .btn-edit {
+        background-color: #007bff; /* Azul de Bootstrap */
+        border-color: #007bff;
+        color: #fff; /* Texto blanco */
+        padding: 8px 16px; /* Tamaño consistente en píxeles */
+        border-radius: 4px; /* Bordes redondeados */
+        font-size: 14px; /* Tamaño de fuente */
+        line-height: 1.5;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    // Evento para limpiar la búsqueda y la tabla al cerrar el modal
-    $('#modalProductos').on('hidden.bs.modal', function() {
-        $('#searchProductoModal').val('');  // Limpiar el campo de búsqueda
-        $('#productos-list-modal tbody').empty();  // Limpiar la tabla de productos
-    });
+    .btn-edit:hover {
+        background-color: #0056b3; /* Azul oscuro en hover */
+        border-color: #004085;
+    }
 
-    // Cargar productos según la búsqueda
-    $(document).ready(function() {
-        $('#searchProductoModal').on('input', function() {
-            let query = $(this).val();
-            if (query.length >= 2) {  // Iniciar búsqueda si se escriben 2 o más caracteres
-                $.ajax({
-                    url: '{% url "buscar_productos" %}',  // URL de búsqueda
-                    data: { 'q': query },
-                    dataType: 'json',
-                    success: function(data) {
-                        let productosList = data.productos || [];
-                        let tableBody = $('#productos-list-modal tbody');
-                        tableBody.empty();  // Limpiar tabla antes de añadir nuevos resultados
+    /* Estilo para el botón de eliminar */
+    .btn-delete {
+        background-color: #fff; /* Fondo blanco */
+        border-color: #dc3545; /* Rojo de Bootstrap */
+        color: #dc3545; /* Texto rojo */
+        padding: 8px 16px; /* Tamaño consistente en píxeles */
+        border-radius: 4px; /* Bordes redondeados */
+        font-size: 14px; /* Tamaño de fuente */
+        line-height: 1.5;
+        transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-                        if (productosList.length === 0) {
-                            tableBody.append('<tr><td colspan="4">No se encontraron productos</td></tr>');
-                        }
+    .btn-delete:hover {
+        background-color: #f8d7da; /* Color de fondo claro en hover */
+        border-color: #bd2130;
+    }
+    /* From Uiverse.io by Mohammad-Rahme-576 */ 
+    .fixed-box {
+      position: fixed; /* Fija la caja en la ventana del navegador */
+      bottom: 0; /* Posición en la parte inferior */
+      right: 0; /* Posición en la parte derecha */
+      z-index: 9999; /* Asegura que esté por encima de otros elementos */
+      width: 200px; /* Ancho de la caja */
+      height: 100px; /* Altura de la caja */
+      background-color: #; /* Color de fondo de la caja */
+      color: white; /* Color del texto */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para darle un efecto flotante */
+      border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior */
+      padding: 0px; /* Espaciado interno */
+    }
+    
 
-                        // Mostrar los productos encontrados
-                        productosList.forEach(function(producto) {
-                            let row = `<tr>
-                                        <td>${producto.codigo}</td>
-                                        <td>${producto.nombre}</td>
-                                        <td>${producto.precio}</td>
-                                        <td>${producto.stock}</td>
-                                        <td><button class="btn btn-success" onclick="agregarProductoFormulario(${producto.id}, '${producto.codigo}', '${producto.nombre}', ${producto.precio}, ${producto.stock})">Seleccionar</button></td>
-                                       </tr>`;
-                            tableBody.append(row);
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error en la solicitud AJAX:", status, error);
-                        alert("Hubo un problema al cargar los productos. Por favor, inténtalo de nuevo.");
-                    }
-                });
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-success navbar-custom">
+      <div class="container-fluid">
+        <div class="row w-100">
+          <div class="col-md-4 d-flex align-items-center">
+            <button class="btn me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+              <i class="fa-solid fa-bars"></i> Menú
+            </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </div>
+          <div class="col-md-4 d-flex justify-content-center align-items-center">
+            <!-- Imagen como botón -->
+            <a href="{% url 'dashboard' %}" class="btn btn-primary" aria-label="Ir al dashboard" style="padding: 0; border: none; background: none;">
+                <img src="{% static 'imagenes/Gestion.png' %}" alt="GestionProGS Logo" class="img-fluid" style="height: 40px;"> <!-- Ajusta el tamaño según sea necesario -->
+            </a>
+        </div>
+        
+          <div class="col-md-4">
+            <div class="collapse navbar-collapse menu-login" id="navbarNav">
+              <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle login-style" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user"></i> {{ user.email }}
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="#">Usuario</a></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item" style="border: none; background: none;">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                </ul>                
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Offcanvas Menu -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menú</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'dashboard' %}">
+              <i class="fas fa-home"></i> Inicio
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#dropdownMenuProductos" aria-expanded="false" aria-controls="dropdownMenuProductos">
+              <i class="fas fa-box"></i> Productos
+              <i class="fas fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="collapse" id="dropdownMenuProductos">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_producto' %}">
+                    <i class="fas fa-box-open"></i> Gestión de Productos
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'historial_precio' %}">
+                    <i class="fas fa-history"></i> Historial de Precios
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'crear_cliente' %}">
+              <i class="fas fa-user"></i> Clientes
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'crear_proveedor' %}">
+              <i class="fas fa-truck"></i> Proveedores
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'crear_tipo_usuario' %}">
+              <i class="fas fa-user"></i> Usuarios
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#dropdownMenuTransacciones" aria-expanded="false" aria-controls="dropdownMenuTransacciones">
+              <i class="fas fa-exchange-alt"></i> Transacciones
+              <i class="fas fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="collapse" id="dropdownMenuTransacciones">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'listar_todas_las_proformas' %}">
+                    <i class="fas fa-file-invoice-dollar"></i> ProForma
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'listar_todas_las_cotizaciones' %}">
+                    <i class="fas fa-receipt"></i> Cotización
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#dropdownMenuConfiguracion" aria-expanded="false" aria-controls="dropdownMenuConfiguracion">
+              <i class="fas fa-cogs"></i> Configuración
+              <i class="fas fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="collapse" id="dropdownMenuConfiguracion">
+              <ul class="nav flex-column ms-3">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_t_contribuyente' %}">
+                    <i class="fas fa-user-tie"></i> Contribuyentes
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_t_documento' %}">
+                    <i class="fas fa-file-alt"></i> Documentos
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_pais' %}">
+                    <i class="fas fa-globe"></i> País
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_estado_region' %}">
+                    <i class="fas fa-map-marker-alt"></i> Departamento
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'crear_municipio' %}">
+                    <i class="fas fa-city"></i> Municipio
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-tags"></i> Categoría
+                  </a>
+                </li>
+               <!-- <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-user-cog"></i> Tipo de Usuario
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-credit-card"></i> Medios de Pago
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">
+                    <i class="fas fa-money-check-alt"></i> Forma de Pago
+                  </a>
+                </li>-->
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+
+    {% if user.is_authenticated %} 
+        <p>Bienvenido, {{ user.email }}!</p> <!-- Contenido para usuarios autenticados --> 
+    {% else %} 
+        <p>No has iniciado sesión. <a href="{% url 'login' %}">Iniciar sesión</a></p> {% endif %}
+
+        <div class="container">
+        <div class="row">
+        <h2 class="d-flex justify-content-between align-items-center mt-5"> Crear Cotización 
+            <div class="codigo-container d-flex align-items-center"> 
+                <label for="codigo_cotizacion" class="form-label me-1 mb-0" style="font-size: 0.9rem;">Código de Cotización:</label> 
+                <span id="codigo_cotizacion" class="badge bg-primary ms-2" style="font-size: 0.9rem;">{{ codigo }}</span> 
+            </div>
+        </h2>
+        <form method="post">
+            {% csrf_token %}
+            {% if messages %}
+                <div class="alert alert-danger" role="alert">
+                    <ul class="messages">
+                        {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="row">
+                <!-- Campo: Cliente -->
+                <div class="form-group col-md-4">
+                    <label for="{{ form.cliente.id_for_label }}" class="form-label me-2">Cliente</label>
+                    {{ form.cliente }}
+                </div>
+
+                <!-- Campo: Trabajador -->
+                <div class="form-group col-md-4">
+                    <label for="{{ form.trabajador.id_for_label }}" class="form-label me-2">Trabajador</label>
+                    {{ form.trabajador }}
+                </div>
+
+                <!-- Campo: Fecha de emisión -->
+                <div class="form-group col-md-4">
+                    <label for="{{ form.fecha_emision.id_for_label }}" class="form-label me-2">Fecha de emisión</label>
+                    {{ form.fecha_emision }}
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Campo: Fecha de vencimiento -->
+                <div class="form-group col-md-3">
+                    <label for="{{ form.fecha_vencimiento.id_for_label }}" class="form-label me-2">Fecha de vencimiento</label>
+                    {{ form.fecha_vencimiento }}
+                </div>
+
+                <!-- Campo: Descuento -->
+                <div class="form-group col-md-3"> 
+                    <label for="{{ form.descuento.id_for_label }}" class="form-label me-2">Descuento</label> 
+                    {{ form.descuento }} 
+                </div>
+
+                <!-- Campo: Porcentaje IVA -->
+                <div class="form-group col-md-3">
+                    <label for="{{ form.porcentaje_iva.id_for_label }}" class="form-label me-2">IVA (%)</label>
+                    {{ form.porcentaje_iva }}
+                </div>
+
+                <!-- Campo: Estado -->
+                <div class="form-group col-md-3">
+                    <label for="{{ form.estado.id_for_label }}" class="form-label me-2">Estado</label>
+                    {{ form.estado }}
+                </div>
+            </div>
+
+            <!-- Campo: Valor del IVA (calculado en tiempo real) -->
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <label for="valor_iva_calculado" class="form-label me-2">Valor del IVA</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" id="valor_iva_calculado" class="form-control" readonly>
+                    </div>
+                </div>
+
+                <!-- Campo: Total de la Factura (calculado en tiempo real) -->
+                <div class="form-group col-md-3">
+                    <label for="total_factura_calculado" class="form-label me-2">Total de la Factura</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="text" id="total_factura_calculado" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Sección de Selección de Productos -->
+            <div class="row mb-3">
+                <div class="col-md-4 d-flex align-items-end">
+                    <input type="hidden" id="id_productos_json" name="productos_json" value=""> 
+                    <input type="hidden" id="id_total_iva" name="total_iva" value=""> 
+                    <button type="submit" class="btn btn-primary">Guardar Cotización</button>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="button" class="btn btn-info" onclick="abrirModalProductos()">Seleccionar Producto</button>
+                </div>
+            </div>
+
+            <!-- Tabla para los Detalles de la Cotización -->
+            <div class="row mb-3 border border-1 border-gray rounded">
+                <div class="col-12">
+                    <table class="table table-striped tabla-productos">
+                        <thead>
+                            <tr>
+                                <th class="col-1">Cant</th>
+                                <th class="col-2">Código</th>
+                                <th class="col-3">Producto</th>
+                                <th class="col-2">Precio</th>
+                                <th class="col-2">Subtotal</th>
+                                <th class="col-2">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productos-list">
+                            {% for producto in productos_list %}
+                            <tr>
+                                <td><input type="number" name="productos_cantidad_{{ producto.contador }}" value="{{ producto.cantidad }}" min="1" class="form-control cantidad" onchange="actualizarSubtotal(this)"></td>
+                                <td>{{ producto.codigo }}</td>
+                                <td>{{ producto.nombre }}</td>
+                                <td><input type="number" name="productos_precio_unitario_{{ producto.contador }}" value="{{ producto.precio }}" min="0" class="form-control precio"></td>
+                                <td class="subtotal">{{ producto.subtotal }}</td>
+                                <td><input type="hidden" name="productos_subtotal_{{ producto.contador }}" value="{{ producto.subtotal }}"></td>
+                                <td><input type="hidden" name="productos_id_{{ producto.contador }}" value="{{ producto.id }}"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(this)">Eliminar</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
+    <!-- Modal de Selección de Producto -->
+    <div class="modal fade" id="modalProductos" tabindex="-1" role="dialog" aria-labelledby="modalProductosLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalProductosLabel">Seleccionar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="searchProductoModal" class="form-control" placeholder="Buscar por nombre..." />
+                    <table class="table table-striped" id="productos-list-modal">
+                        <thead>
+                            <tr>
+                                <th>Cod</th>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Los productos serán llenados con AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let productosSeleccionados = [];  // Array para almacenar los productos seleccionados
+        let contadorFilas = 0;            // Contador de filas
+        let isEditing = window.location.pathname.includes('/cotizacion/editar/');  // Verifica si estamos editando una cotización
+
+        function abrirModalProductos() {
+            console.log("Abrir modal de productos");
+            $('#modalProductos').modal('show');
+        }
+
+        $('#modalProductos').on('hidden.bs.modal', function() {
+            console.log("Modal de productos cerrado");
+            $('#searchProductoModal').val('');  // Limpiar el campo de búsqueda
+            $('#productos-list-modal tbody').empty();  // Limpiar la tabla de productos
+        });
+
+        $(document).ready(function() {
+            console.log("Documento listo");
+            if (isEditing) {
+                console.log("Estamos editando una cotización");
+                cargarProductosExistentes();  // Cargar productos existentes si estamos editando
             }
-        });
-    });
 
-    let contadorFilas = 0;
+            $('#searchProductoModal').on('input', function() {
+                let query = $(this).val();
+                console.log(`Buscando productos con query: ${query}`);
+                if (query.length >= 2) {  // Iniciar búsqueda si se escriben 2 o más caracteres
+                    $.ajax({
+                        url: '{% url "buscar_productos" %}',  // URL de búsqueda
+                        data: { 'q': query },
+                        dataType: 'json',
+                        success: function(data) {
+                            console.log("Datos recibidos:", data);
+                            let productosList = data.productos || [];
+                            let tableBody = $('#productos-list-modal tbody');
+                            tableBody.empty();  // Limpiar tabla antes de añadir nuevos resultados
 
-    // Función para agregar el producto al formulario de cotización
-    function agregarProductoFormulario(id, codigo, nombre, precio, stock) {
-        let cantidad = 1;  // Cantidad por defecto
-        let iva = 19;  // IVA por defecto (inicialmente 19%)
-        let subtotal = precio * cantidad;  // Subtotal inicial
-        let totalIva = (subtotal * iva) / 100;  // IVA total inicial
-    
-        // Crear una nueva fila con los nuevos campos
-        let nuevaFila = `<tr>
-                            <td><input type="number" name="productos_cantidad_${contadorFilas}" value="${cantidad}" min="1" class="form-control cantidad" onchange="actualizarSubtotal(this, ${precio})"></td>
-                            <td>${codigo}</td>
-                            <td>${nombre}</td>
-                            <td><input type="number" name="productos_precio_unitario_${contadorFilas}" value="${precio}" min="0" class="form-control precio"></td>
-                            <td>
-                                <select name="productos_iva_producto_${contadorFilas}" class="form-control iva" onchange="actualizarSubtotal(this, ${precio})">
-                                    <option value="19" ${iva === 19 ? 'selected' : ''}>19%</option>
-                                    <option value="5" ${iva === 5 ? 'selected' : ''}>5%</option>
-                                    <option value="0" ${iva === 0 ? 'selected' : ''}>0%</option>
-                                </select>
-                            </td>
-                            <td class="subtotal">${subtotal}</td>
-                            <td class="total-iva">${totalIva}</td>  <!-- Columna para mostrar el Total IVA -->
-                            <td><input type="hidden" name="productos_subtotal_prodC_${contadorFilas}" value="${subtotal}"></td>
-                            <td><input type="hidden" name="productos_id_${contadorFilas}" value="${id}"></td>  <!-- Campo oculto con el id del producto -->
-                            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(this)">Eliminar</button></td>
-                        </tr>`;
+                            if (productosList.length === 0) {
+                                console.log("No se encontraron productos.");
+                                tableBody.append('<tr><td colspan="5">No se encontraron productos</td></tr>');
+                            } else {
+                                productosList.forEach(function(producto) {
+                                    console.log("Producto encontrado:", producto);
+                                    let row = `<tr>
+                                                <td>${producto.codigo}</td>
+                                                <td>${producto.nombre}</td>
+                                                <td>${producto.precio}</td>
+                                                <td>${producto.stock}</td>
+                                                <td><button class="btn btn-success" onclick="agregarProductoFormulario(${producto.id}, '${producto.codigo}', '${producto.nombre}', ${producto.precio}, ${producto.stock})">Seleccionar</button></td>
+                                            </tr>`;
+                                    tableBody.append(row);
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error en la solicitud AJAX:", status, error);
+                            console.log("Detalles del error:", xhr.responseText);
+                            alert("Hubo un problema al cargar los productos. Por favor, inténtalo de nuevo.");
+                        }
+                    });
+                }
+            });
 
-    
-        $('#productos-list').append(nuevaFila);
-        contadorFilas++;
-    
-        $('#modalProductos').modal('hide');
-    
-        // Llamamos a la función para actualizar el total de IVA después de agregar el producto
-        actualizarTotalIVA();
-    }
-    
-    function actualizarSubtotal(input, precioOriginal) {
-        // Obtener la fila del producto
-        let fila = $(input).closest('tr');
-        let cantidad = parseFloat(fila.find('input[name^="productos_cantidad_"]').val());
-        let ivaProducto = parseFloat(fila.find('select[name^="productos_iva_producto_"]').val()); // IVA seleccionado
-        let precioUnitario = parseFloat(fila.find('input[name^="productos_precio_unitario_"]').val());
-    
-        // Calcular el subtotal (precio unitario * cantidad)
-        let subtotal = cantidad * precioUnitario;
-    
-        // Calcular el Total IVA para ese producto utilizando el precio original
-        let totalIva = (cantidad * precioOriginal * ivaProducto) / 100;
-    
-        // Actualizar la fila con el nuevo IVA y subtotal
-        fila.find('.total-iva').text(totalIva.toFixed(2));  // Mostrar el Total IVA
-        fila.find('.subtotal').text(subtotal.toFixed(2));  // Actualizar el subtotal (sin IVA)
-    
-        // Actualizar el total IVA al final
-        actualizarTotalIVA();  // Llamar a esta función para actualizar el total de IVA
-    }
-    
-    
-    // Función para eliminar un producto de la tabla de cotización
-    function eliminarProducto(button) {
-        $(button).closest('tr').remove();  // Eliminar la fila que contiene el botón
-
-        // Llamamos a la función para actualizar el total de IVA después de eliminar un producto
-        actualizarTotalIVA();
-    }
-
-    // Función para actualizar el campo de Total IVA
-    function actualizarTotalIVA() {
-        let totalIva = 0;
-
-        // Recorrer todas las celdas que contienen los totales de IVA y sumarlos
-        $('.total-iva').each(function() {
-            totalIva += parseFloat($(this).text()) || 0;
+            actualizarTotal();
         });
 
-        // Actualizar el valor en el campo oculto para enviarlo con el formulario
-        $('#id_total_iva').val(totalIva.toFixed(2)); // El campo generado por Django con id 'id_total_iva'
-    }
+        function cargarProductosExistentes() {
+            console.log("Cargando productos existentes...");
+            let productos = {{ productos_list|safe }};
+            console.log("Productos traídos desde la vista:", productos);
 
-</script>
+            // Filtrar duplicados basados en el id del producto
+            let productosFiltrados = productos.filter((producto, index, self) => 
+                index === self.findIndex((p) => p.id === producto.id)
+            );
+            console.log("Productos filtrados:", productosFiltrados);
 
+            productosSeleccionados = [];  // Reiniciar la lista de productos seleccionados para evitar duplicados
 
+            productosFiltrados.forEach(function(producto, index) {
+                console.log("Producto existente:", producto);
+                let subtotal = producto.precio * producto.cantidad;
+                console.log(`Calculado subtotal para producto ${producto.codigo}: ${subtotal}`);
+                let nuevaFila = `<tr>
+                    <td class="col-1"><input type="number" name="productos_cantidad_${index}" value="${producto.cantidad}" min="1" class="form-control cantidad" onchange="actualizarSubtotal(this)"></td>
+                    <td class="col-2">${producto.codigo}</td>
+                    <td class="col-3">${producto.nombre}</td>
+                    <td class="col-2"><span class="precio" data-precio="${producto.precio}">$${producto.precio.toFixed(2)}</span></td>
+                    <td class="col-2"><span class="subtotal" data-subtotal="${subtotal}">$${subtotal.toFixed(2)}</span></td>
+                    <td class="col-2"><input type="hidden" name="productos_id_${index}" value="${producto.id}"><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(this)">Eliminar</button></td>
+                </tr>`;
 
-{% endblock %}
+                console.log("Antes de agregar fila a #productos-list");
+                $('#productos-list').append(nuevaFila);
+                console.log("Después de agregar fila a #productos-list");
+
+                productosSeleccionados.push({
+                    id: producto.id,
+                    codigo: producto.codigo,
+                    nombre: producto.nombre,
+                    precio: producto.precio,
+                    cantidad: producto.cantidad,
+                    subtotal: subtotal
+                });
+                console.log("Producto añadido a productosSeleccionados:", producto);
+
+                contadorFilas++;
+                console.log("contadorFilas incrementado a:", contadorFilas);
+            });
+
+            console.log("Productos seleccionados después de cargar existentes:", productosSeleccionados);
+            actualizarCamposProductos();
+        }
+
+        function agregarProductoFormulario(id, codigo, nombre, precio, stock) {
+          console.log("Agregando producto:", { id, codigo, nombre, precio, stock });
+          let cantidad = 1;  // Cantidad por defecto
+          let subtotal = precio * cantidad;  // Subtotal inicial
+      
+          // Verificar si el producto ya está en la lista
+          if (!productosSeleccionados.some(p => p.id === id)) {
+              let nuevaFila = `<tr>
+                  <td class="col-1"><input type="number" name="productos_cantidad_${contadorFilas}" value="${cantidad}" min="1" class="form-control cantidad" onchange="actualizarSubtotal(this)"></td>
+                  <td class="col-2">${codigo}</td>
+                  <td class="col-3">${nombre}</td>
+                  <td class="col-2"><span class="precio" data-precio="${precio}">$${precio.toFixed(2)}</span></td>
+                  <td class="col-2"><span class="subtotal" data-subtotal="${subtotal}">$${subtotal.toFixed(2)}</span></td>
+                  <td class="col-2"><input type="hidden" name="productos_id_${contadorFilas}" value="${id}"><button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(this)">Eliminar</button></td>
+              </tr>`;
+      
+              $('#productos-list').append(nuevaFila);
+              contadorFilas++;
+      
+              $('#modalProductos').modal('hide');
+      
+              productosSeleccionados.push({
+                  id: id,
+                  codigo: codigo,
+                  nombre: nombre,
+                  precio: precio,
+                  cantidad: cantidad,
+                  subtotal: subtotal
+              });
+      
+              actualizarCamposProductos();
+              actualizarTotal();  // Asegurar que el total se actualice después de agregar un nuevo producto
+          } else {
+              console.log("Producto ya existente no se agregará:", { id, codigo, nombre, precio, stock });
+          }
+      }
+      
+
+        function actualizarSubtotal(input) {
+          let fila = $(input).closest('tr');
+          console.log("Actualizando subtotal para fila:", fila);
+          let cantidad = parseFloat(fila.find('input[name^="productos_cantidad_"]').val());
+          let precioUnitario = parseFloat(fila.find('.precio').data('precio'));
+          let subtotal = cantidad * precioUnitario;
+          console.log(`Subtotal actualizado: ${subtotal} para cantidad: ${cantidad} y precioUnitario: ${precioUnitario}`);
+      
+          fila.find('.subtotal').data('subtotal', subtotal).text(`$${subtotal.toFixed(2)}`);
+      
+          let productoId = fila.find('input[name^="productos_id_"]').val();
+          let productoSeleccionado = productosSeleccionados.find(p => p.id == productoId);
+          if (productoSeleccionado) {
+              productoSeleccionado.cantidad = cantidad;
+              productoSeleccionado.subtotal = subtotal;
+          }
+      
+          console.log("Subtotal actualizado para producto ID:", productoId);
+          actualizarCamposProductos();
+          actualizarTotal();  // Añadimos la llamada a actualizarTotal aquí también
+      }
+      
+
+        function eliminarProducto(button) {
+            let fila = $(button).closest('tr');
+            let productoId = fila.find('input[name^="productos_id_"]').val();
+            productosSeleccionados = productosSeleccionados.filter(p => p.id != productoId);
+
+            fila.remove();
+            console.log("Producto eliminado:", productoId);
+            actualizarCamposProductos();
+        }
+
+        function actualizarCamposProductos() {
+            $('#id_productos_json').val(JSON.stringify(productosSeleccionados));
+            console.log("Productos actuales:", productosSeleccionados);
+        }
+
+        function actualizarTotal() {
+          let total = 0;
+      
+          // Sumar los subtotales de todos los productos
+          $('.subtotal').each(function() {
+              total += parseFloat($(this).data('subtotal')) || 0;
+          });
+      
+          // Calcular el descuento si corresponde
+          let porcentajeDescuento = parseFloat($('#id_descuento').val()) || 0;
+          let valorDescuento = total * (porcentajeDescuento / 100);
+          let totalConDescuento = total - valorDescuento;
+      
+          // Calcular el IVA si corresponde
+          let porcentajeIVA = parseFloat($('#id_porcentaje_iva').val()) || 0;
+          let valorIVA = totalConDescuento * (porcentajeIVA / 100);
+      
+          // Actualizar los campos con los valores calculados
+          $('#valor_iva_calculado').val(`$${valorIVA.toFixed(2)}`);
+          $('#total_factura_calculado').val(`$${totalConDescuento.toFixed(2)}`);
+      
+          console.log("Total actualizado sin IVA:", totalConDescuento);
+      }      
+
+        $('#id_descuento').on('change', actualizarTotal);
+        $('#id_porcentaje_iva').on('change', actualizarTotal);
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          // Configurar la fecha y hora actual
+          const dateElement = document.getElementById('current-date');
+          const timeElement = document.getElementById('current-time');
+          const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+          const today = new Date();
+          dateElement.innerText = today.toLocaleDateString('es-ES', optionsDate);
+          timeElement.innerText = today.toLocaleTimeString('es-ES', optionsTime);
+      });
+  </script>
+  
+  </body>
+  </html>

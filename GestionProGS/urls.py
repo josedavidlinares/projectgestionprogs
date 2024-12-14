@@ -11,6 +11,8 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('inventory/', include('inventory.urls')),
     path('transactions/', include('transactions.urls')),
+    path('usuarios/', include('usuarios.urls')),
+    path('', include('myapp.urls')),
 ]
 
 # Agregar configuración para servir archivos multimedia en modo de desarrollo

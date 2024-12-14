@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Proforma</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 210mm;
+            padding: 20mm;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h1, h2, h3, h5 {
+            color: #333;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .table th {
+            background: #007bff;
+            color: white;
+        }
+
+        .client-details, .invoice-details {
+            margin-bottom: 20px;
+        }
+
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .details-table {
+            width: 100%;
+        }
+
+        .details-table td {
+            vertical-align: top;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header .logo {
+            width: 100px;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        .header .company-info {
+            display: inline-block;
+            text-align: center;
+        }
+
+        .print-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .back-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        /* Ocultar el botón de imprimir y volver en el PDF */
+        @media print {
+            .print-btn,
+            .back-btn {
+                display: none;
+            }
+        }
+    </style>
+    <script>
+        function printPage() {
+            window.print();
+        }
+        
+        function goBack() {
+            window.location.href = "{% url 'listar_todas_las_proformas' %}";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{% static 'imagenes/logoGS.png' %}" alt="Logo de MultielectricosGS S.A.S" class="logo">
+            <div class="company-info">
+                <h2>MultielectricosGS S.A.S</h2>
+                <p>Dirección: Cl. 17 #12-87, Bogotá, Colombia</p>
+                <p>Teléfono: +57 311 8831429</p>
+                <p>Email: multielectricosgs@gmail.com</p>
+            </div>
+        </div>
+        <div class="invoice-header">
+            <h2 class="text-primary">Proforma</h2>
+        </div>
+        <table class="details-table">
+            <tr>
+                <td class="client-details">
+                    <h3 class="text-secondary">Detalles del Cliente</h3>
+                    <p class="mb-1"><strong>Nombre:</strong> {{ factura.cliente.nombre }}</p>
+                    <p class="mb-1"><strong>Documento:</strong> {{ factura.cliente.tipo_documento.nombre }} {{ factura.cliente.documento_cliente }}</p>
+                    <p class="mb-1"><strong>Dirección:</strong> {{ factura.cliente.direccion }}</p>
+                    <p class="mb-1"><strong>Teléfono:</strong> {{ factura.cliente.telefono }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ factura.cliente.email }}</p>
+                </td>
+                <td class="invoice-details text-end">
+                    <h3 class="text-secondary">Detalles de la Proforma</h3>
+                    <p class="mb-1"><strong>Número de Proforma:</strong> {{ factura.codigo }}</p>
+                    <p class="mb-1"><strong>Fecha de Emisión:</strong> {{ factura.fecha_emision|date:"d/m/Y" }}</p>
+                    <p class="mb-1"><strong>Fecha de Vencimiento:</strong> {{ factura.fecha_vencimiento|date:"d/m/Y" }}</p>
+                    <p class="mb-1"><strong>Estado:</strong> {{ factura.estado }}</p>
+                </td>
+            </tr>
+        </table>
+        <div class="row mt-4">
+            <div class="col-12">
+                <h5 class="text-secondary">Productos/Servicios</h5>
+                <table class="table table-bordered table-striped">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th>Cantidad</th>
+                            <th>Producto</th>
+                            <th>Precio Unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in detalles_factura %}
+                        <tr>
+                            <td>{{ detalle.cantidad }}</td>
+                            <td>{{ detalle.producto.nombre }}</td>
+                            <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
+                            <td>${{ detalle.subtotal_prodProf|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6 ms-auto text-end">
+                <h5 class="text-secondary">Totales</h5>
+                <p class="mb-1"><strong>Subtotal sin IVA:</strong> ${{ subtotal|floatformat:2 }}</p>
+                <p class="mb-1"><strong>IVA ({{ factura.porcentaje_iva }}%):</strong> ${{ total_iva|floatformat:2 }}</p>
+                <p class="mb-1"><strong>Descuento:</strong> ${{ descuento|floatformat:2 }}</p>
+                <p class="mb-1"><strong>Total:</strong> ${{ total|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <button class="back-btn" onclick="goBack()">Volver</button>
+    <button class="print-btn" onclick="printPage()">Imprimir</button>
+</body>
+</html>
